@@ -1,0 +1,45 @@
+{"level":"info","message":"Server running on port 3001","service":"psm-backend","timestamp":"2025-09-27T12:12:45.073Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:12:55.083Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:12:57.468Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:12:57.475Z"}
+{"level":"info","message":"GET /api/statuses/team-updates","service":"psm-backend","timestamp":"2025-09-27T12:12:57.503Z"}
+{"level":"info","message":"GET /api/statuses/team-updates","service":"psm-backend","timestamp":"2025-09-27T12:12:57.512Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:13:00.383Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:13:00.388Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:13:04.181Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:13:04.188Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:13:04.195Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:13:04.205Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:13:04.208Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:13:04.216Z"}
+{"level":"info","message":"POST /api/assignments","service":"psm-backend","timestamp":"2025-09-27T12:13:06.379Z"}
+{"code":"23505","constraint":"project_assignments_project_id_employee_id_unique","detail":"Key (project_id, employee_id)=(15, 11) already exists.","file":"nbtinsert.c","length":298,"level":"error","line":"673","message":"Assign employee error: insert into \"project_assignments\" (\"assigned_by\", \"employee_id\", \"project_id\") values ($1, $2, $3) returning \"id\" - duplicate key value violates unique constraint \"project_assignments_project_id_employee_id_unique\"","name":"error","routine":"_bt_check_unique","schema":"public","service":"psm-backend","severity":"ERROR","stack":"error: insert into \"project_assignments\" (\"assigned_by\", \"employee_id\", \"project_id\") values ($1, $2, $3) returning \"id\" - duplicate key value violates unique constraint \"project_assignments_project_id_employee_id_unique\"\n    at Parser.parseErrorMessage (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:285:98)\n    at Parser.handlePacket (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:122:29)\n    at Parser.parse (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:35:38)\n    at Socket.<anonymous> (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\index.js:11:42)\n    at Socket.emit (node:events:519:28)\n    at addChunk (node:internal/streams/readable:561:12)\n    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n    at Readable.push (node:internal/streams/readable:392:5)\n    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)","table":"project_assignments","timestamp":"2025-09-27T12:13:06.393Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:13:23.260Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:14:09.685Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:14:09.691Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:14:09.715Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:14:09.719Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:14:09.722Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:14:09.727Z"}
+{"level":"info","message":"POST /api/assignments","service":"psm-backend","timestamp":"2025-09-27T12:14:12.347Z"}
+{"code":"23505","constraint":"project_assignments_project_id_employee_id_unique","detail":"Key (project_id, employee_id)=(15, 11) already exists.","file":"nbtinsert.c","length":298,"level":"error","line":"673","message":"Assign employee error: insert into \"project_assignments\" (\"assigned_by\", \"employee_id\", \"project_id\") values ($1, $2, $3) returning \"id\" - duplicate key value violates unique constraint \"project_assignments_project_id_employee_id_unique\"","name":"error","routine":"_bt_check_unique","schema":"public","service":"psm-backend","severity":"ERROR","stack":"error: insert into \"project_assignments\" (\"assigned_by\", \"employee_id\", \"project_id\") values ($1, $2, $3) returning \"id\" - duplicate key value violates unique constraint \"project_assignments_project_id_employee_id_unique\"\n    at Parser.parseErrorMessage (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:285:98)\n    at Parser.handlePacket (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:122:29)\n    at Parser.parse (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\parser.js:35:38)\n    at Socket.<anonymous> (D:\\BANAS_PROJECTS\\PSM_PROJECT\\backend\\node_modules\\pg-protocol\\dist\\index.js:11:42)\n    at Socket.emit (node:events:519:28)\n    at addChunk (node:internal/streams/readable:561:12)\n    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n    at Readable.push (node:internal/streams/readable:392:5)\n    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)","table":"project_assignments","timestamp":"2025-09-27T12:14:12.352Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:14:24.255Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:04.512Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:06.908Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:06.915Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:07.621Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:07.627Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:10.129Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:10.133Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:11.140Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:11.148Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:12.003Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:15:12.008Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:15:15.349Z"}
+{"level":"info","message":"GET /api/projects/15","service":"psm-backend","timestamp":"2025-09-27T12:15:15.354Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:15:15.374Z"}
+{"level":"info","message":"GET /api/users","service":"psm-backend","timestamp":"2025-09-27T12:15:15.380Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:15:15.383Z"}
+{"level":"info","message":"GET /api/assignments/project/15","service":"psm-backend","timestamp":"2025-09-27T12:15:15.388Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:16:12.243Z"}
+{"level":"info","message":"GET /api/projects","service":"psm-backend","timestamp":"2025-09-27T12:17:12.241Z"}

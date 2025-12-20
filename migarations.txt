@@ -1,0 +1,14 @@
+
+psm_db-# \d migrations
+                                         Table "public.migrations"
+     Column     |           Type           | Collation | Nullable |                Default
+
+----------------+--------------------------+-----------+----------+------------------------------------
+----
+ id             | integer                  |           | not null | nextval('migrations_id_seq'::regcla
+ss)
+ name           | character varying(255)   |           |          |
+ batch          | integer                  |           |          |
+ migration_time | timestamp with time zone |           |          |
+Indexes:
+    "migrations_pkey" PRIMARY KEY, btree (id)

@@ -1,0 +1,38 @@
+psm_db-# \d daily_statuses
+                                              Table "public.daily_statuses"
+          Column          |           Type           | Collation | Nullable |                  Default
+
+--------------------------+--------------------------+-----------+----------+--------------------------
+------------------
+ id                       | integer                  |           | not null | nextval('daily_statuses_i
+d_seq'::regclass)
+ employee_id              | integer                  |           | not null |
+ project_id               | integer                  |           | not null |
+ date                     | date                     |           | not null |
+ status_text              | text                     |           | not null |
+ hours_worked             | numeric(4,2)             |           | not null |
+ progress_percentage      | integer                  |           | not null |
+ attachments              | jsonb                    |           |          | '[]'::jsonb
+ submitted_at             | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+ reviewed_by              | integer                  |           |          |
+ review_status            | text                     |           |          | 'pending'::text
+ review_comments          | text                     |           |          |
+ reviewed_at              | timestamp with time zone |           |          |
+ is_deleted               | boolean                  |           |          | false
+ attachments_with_content | jsonb                    |           |          |
+ mark_as_completed        | boolean                  |           |          | false
+ action_plan_status       | text                     |           |          | 'started'::text
+ updated_at               | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "daily_statuses_pkey" PRIMARY KEY, btree (id)
+Check constraints:
+    "daily_statuses_action_plan_status_check" CHECK (action_plan_status = ANY (ARRAY['started'::text, '
+in_progress'::text, 'completed'::text, 'under_approval'::text, 'on_hold'::text]))
+    "daily_statuses_review_status_check" CHECK (review_status = ANY (ARRAY['pending'::text, 'approved':
+:text, 'rejected'::text]))
+Foreign-key constraints:
+    "daily_statuses_employee_id_foreign" FOREIGN KEY (employee_id) REFERENCES users(id)
+    "daily_statuses_project_id_foreign" FOREIGN KEY (project_id) REFERENCES projects(id)
+    "daily_statuses_reviewed_by_foreign" FOREIGN KEY (reviewed_by) REFERENCES users(id)
+Referenced by:
+-- More  --

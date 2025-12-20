@@ -1,0 +1,46 @@
+C:\Program Files\PostgreSQL\17\pgAdmin 4\runtime>"C:\Program Files\PostgreSQL\17\pgAdmin 4\runtime\psql
+.exe" "host=localhost port=5432 dbname=psm_db user=postgres sslmode=prefer connect_timeout=10" 2>>&1
+psql (17.6)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+psm_db=# \d projects
+                                            Table "public.projects"
+        Column        |           Type           | Collation | Nullable |               Default
+
+----------------------+--------------------------+-----------+----------+------------------------------
+--------
+ id                   | integer                  |           | not null | nextval('projects_id_seq'::re
+gclass)
+ name                 | character varying(255)   |           | not null |
+ description          | text                     |           |          |
+ created_by           | integer                  |           | not null |
+ start_date           | date                     |           |          |
+ end_date             | date                     |           |          |
+ status               | project_status           |           |          | 'planning'::project_status
+ is_deleted           | boolean                  |           |          | false
+ created_at           | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+ updated_at           | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+ progress_percentage  | integer                  |           |          | 0
+ total_hours_logged   | integer                  |           |          | 0
+ total_milestones     | integer                  |           |          | 0
+ completed_milestones | integer                  |           |          | 0
+ completion_comments  | text                     |           |          |
+ rejection_reason     | text                     |           |          |
+ prd_file             | jsonb                    |           |          |
+ prd_file_content     | bytea                    |           |          |
+ osta_no              | integer                  |           |          |
+ osta_name            | character varying(255)   |           |          |
+ dept_code            | character varying(50)    |           |          | '12'::character varying
+ department           | character varying(255)   |           |          | 'Systems'::character varying
+ fsta_name            | character varying(255)   |           |          |
+Indexes:
+    "projects_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "projects_created_by_foreign" FOREIGN KEY (created_by) REFERENCES users(id)
+Referenced by:
+    TABLE "daily_statuses" CONSTRAINT "daily_statuses_project_id_foreign" FOREIGN KEY (project_id) REFE
+RENCES projects(id)
+-- More  --

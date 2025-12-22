@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import { Plus, Users, Calendar, Eye, AlertCircle, MoreVertical, Edit, Trash2, MessageSquare } from 'lucide-react';
+import { Plus, Users, Calendar, Eye, AlertCircle, MoreVertical, Edit, Trash2, MessageSquare, ArrowLeft } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import ProjectFilters from '../components/ProjectFilters';
@@ -69,7 +69,10 @@ const Projects = () => {
     try {
       setLoading(true);
       const response = await api.get('/projects');
-      setProjects(response.data || []);
+      const allProjects = response.data || [];
+      // Deduplicate projects by ID
+      const uniqueProjects = Array.from(new Map(allProjects.map(item => [item.id, item])).values());
+      setProjects(uniqueProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
     } finally {
@@ -103,7 +106,9 @@ const Projects = () => {
         })
       );
 
-      setProjects(projectsWithDetails || []);
+      // Deduplicate projects by ID
+      const uniqueProjects = projectsWithDetails ? Array.from(new Map(projectsWithDetails.map(item => [item.id, item])).values()) : [];
+      setProjects(uniqueProjects);
     } catch (error) {
       console.error('Error loading assigned projects:', error);
       setProjects([]);
@@ -114,6 +119,8 @@ const Projects = () => {
 
   const filterProjects = () => {
     let filtered = [...projects];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -124,9 +131,21 @@ const Projects = () => {
       } else if (statusFilter === 'pending_approval') {
         filtered = filtered.filter(project => project.status === 'pending_approval');
       } else if (statusFilter === 'delayed') {
-        filtered = filtered.filter(project => project.status === 'delayed');
+        filtered = filtered.filter(project => {
+          if (project.status === 'delayed') return true;
+          // Also include overdue projects
+          const endDate = new Date(project.end_date);
+          endDate.setHours(0, 0, 0, 0);
+          return endDate < today && ['active', 'in-progress', 'planning'].includes(project.status);
+        });
       } else if (statusFilter === 'active') {
-        filtered = filtered.filter(project => project.status === 'active');
+        filtered = filtered.filter(project => {
+          if (project.status !== 'active' && project.status !== 'in-progress') return false;
+          // Exclude overdue projects (they belong in delayed)
+          const endDate = new Date(project.end_date);
+          endDate.setHours(0, 0, 0, 0);
+          return endDate >= today;
+        });
       } else if (statusFilter === 'planning') {
         filtered = filtered.filter(project => project.status === 'planning');
       }
@@ -140,7 +159,6 @@ const Projects = () => {
     }
 
     // defined outside the sort for efficiency
-    const today = new Date();
     const isUrgent = (dateStr) => {
       const daysLeft = differenceInDays(new Date(dateStr), today);
       return daysLeft >= 0 && daysLeft <= 5;
@@ -242,8 +260,16 @@ const Projects = () => {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-2">
+    <div className="space-y-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back
+        </button>
+
         <div className="flex items-center gap-2">
           {/* Show filters for admin */}
           {user.role === 'admin' && (
@@ -253,8 +279,7 @@ const Projects = () => {
               onClear={handleClearFilters}
             />
           )}
-        </div>
-        <div className="flex items-center gap-2">
+
           {user.role === 'manager' && (
             <div className="bg-gray-100 dark:bg-gray-700 p-0.5 rounded-md inline-flex">
               <button
@@ -282,8 +307,16 @@ const Projects = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredProjects.map((project) => {
-          const daysLeft = differenceInDays(new Date(project.end_date), new Date());
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const endDate = new Date(project.end_date);
+          endDate.setHours(0, 0, 0, 0);
+
+          const daysLeft = differenceInDays(endDate, today);
           const isUrgent = daysLeft >= 0 && daysLeft <= 5 && project.status !== 'completed' && project.status !== 'archived';
+
+          // Check if project is overdue but still marked as active/in-progress/planning
+          const isOverdue = endDate < today && ['active', 'in-progress', 'planning'].includes(project.status);
 
           return (
             <div
@@ -303,16 +336,17 @@ const Projects = () => {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusColor(project.status)}`}>
-                      {project.status === 'active' ? 'Active' :
-                        project.status === 'pending_approval' ? 'Pending Approval' :
-                          project.status === 'delayed' ? 'Delayed' :
-                            project.status === 'in-progress' ? 'In Progress' :
-                              project.status === 'completed' ? 'Completed' :
-                                project.status === 'archived' ? 'Archived' :
-                                  project.status === 'planning' ? 'Planning' :
-                                    project.status === 'on-hold' ? 'On Hold' :
-                                      project.status}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${isOverdue ? 'bg-red-100 text-red-800' : getStatusColor(project.status)}`}>
+                      {isOverdue ? 'Delayed' :
+                        (project.status === 'active' ? 'Active' :
+                          project.status === 'pending_approval' ? 'Pending Approval' :
+                            project.status === 'delayed' ? 'Delayed' :
+                              project.status === 'in-progress' ? 'In Progress' :
+                                project.status === 'completed' ? 'Completed' :
+                                  project.status === 'archived' ? 'Archived' :
+                                    project.status === 'planning' ? 'Planning' :
+                                      project.status === 'on-hold' ? 'On Hold' :
+                                        project.status)}
                     </span>
 
                   </div>
@@ -397,15 +431,19 @@ const Projects = () => {
       {filteredProjects.length === 0 && (
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400">
-            <p className="text-lg font-medium text-gray-900 dark:text-white">No tasks found</p>
+            <p className="text-lg font-medium text-gray-900 dark:text-white">
+              {statusFilter !== 'all' ? `No ${statusFilter.replace('_', ' ')} projects` : 'No tasks found'}
+            </p>
             <p className="mt-1">
               {user.role === 'employee'
                 ? 'You haven\'t been assigned to any tasks yet.'
-                : 'Try adjusting your filters or create a new task.'
+                : statusFilter !== 'all'
+                  ? 'There are no projects with this status at the moment.'
+                  : 'Get started by creating a new task.'
               }
             </p>
           </div>
-          {user.role === 'manager' && (
+          {user.role === 'manager' && statusFilter === 'all' && (
             <Link
               to="/projects/create"
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"

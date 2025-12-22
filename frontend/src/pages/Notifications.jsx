@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import { toast } from 'react-toastify';
-import { Clock, Calendar, XCircle, Filter, ArrowLeft } from 'lucide-react';
+import { Clock, Calendar, XCircle, Filter, ArrowLeft, MessageSquare, FileText } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
@@ -116,18 +116,17 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-1 px-2 sm:px-4 lg:px-6 transition-colors duration-200">
       <div className="w-full">
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-4 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back
-        </button>
         {/* Combined heading and filters */}
         <div className="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-200">
-            All Action Plans Update
-          </h1>
+          <div className="flex items-center gap-12">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Back
+            </button>
+          </div>
 
           {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -180,17 +179,17 @@ const Notifications = () => {
           ) : (
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredStatuses.map((status) => (
-                <li key={status.id} className="px-4 py-2">
-                  <div className="flex items-center justify-between">
+                <li key={status.id} className="group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+                  <div className="px-4 py-4 sm:px-6 flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
                           {status.employee_name}
-                        </p>
+                        </span>
                         {/* Show status ONLY for completion requests (mark_as_completed = true) */}
                         {status.mark_as_completed && status.review_status && (
                           <span
-                            className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                            className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(
                               status.review_status
                             )}`}
                           >
@@ -199,20 +198,53 @@ const Notifications = () => {
                         )}
                         {/* Show pending status for completion requests that haven't been reviewed yet */}
                         {status.mark_as_completed && !status.review_status && (
-                          <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200">
+                          <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200">
                             Pending Review
                           </span>
                         )}
-                      </div>
-                      <p className="mt-1 text-sm text-gray-900 dark:text-gray-200">
-                        {status.status_text}
-                      </p>
-                      <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 ml-auto sm:ml-0">
+                          <Calendar className="h-3 w-3" />
                           {new Date(status.submitted_at).toLocaleString()}
                         </span>
                       </div>
+
+                      <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap mt-2 leading-relaxed">
+                        {status.status_text}
+                      </p>
+
+                      {/* Project Name Label */}
+                      {status.project_name && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
+                          Project: {status.project_name}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex-shrink-0 flex flex-col items-end justify-center self-center ml-4 gap-2">
+                      <Link
+                        to={`/action-plans/${status.id}?tab=activities`}
+                        className="inline-flex items-center px-3 py-1.5 border border-primary-600 dark:border-primary-500 shadow-sm text-xs font-medium rounded-md text-primary-600 dark:text-primary-400 bg-white dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+                      >
+                        <FileText className="h-3.5 w-3.5 mr-1.5" />
+                        View Instance
+                      </Link>
+
+                      <Link
+                        to={`/projects/${status.project_id}/discussion`}
+                        state={{
+                          citedActionPlan: {
+                            id: status.id,
+                            text: status.status_text,
+                            user_name: status.employee_name,
+                            submitted_at: status.submitted_at,
+                            project_id: status.project_id
+                          }
+                        }}
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400" />
+                        Discussion
+                      </Link>
                     </div>
                   </div>
                 </li>

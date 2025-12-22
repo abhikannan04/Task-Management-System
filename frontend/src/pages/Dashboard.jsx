@@ -152,8 +152,9 @@ const Dashboard = () => {
       }
 
       const projectsResponse = await api.get('/projects');
-      // Ensure projects is always an array
-      const projects = Array.isArray(projectsResponse.data) ? projectsResponse.data : [];
+      // Ensure projects is always an array and deduplicated
+      const rawProjects = Array.isArray(projectsResponse.data) ? projectsResponse.data : [];
+      const projects = Array.from(new Map(rawProjects.map(item => [item.id, item])).values());
 
       let notifications = { recentStatuses: [] };
       let pendingCompletionsCount = 0;
@@ -296,7 +297,7 @@ const Dashboard = () => {
       today.setHours(0, 0, 0, 0);
 
       const activeProjects = projects.filter((p) => {
-        if (p.status === 'active') {
+        if (p.status === 'active' || p.status === 'in-progress') {
           const endDate = new Date(p.end_date);
           endDate.setHours(0, 0, 0, 0);
           return endDate >= today;
@@ -314,7 +315,8 @@ const Dashboard = () => {
       // Calculate delayed projects - projects past end date or with delayed status
       const calculatedDelayedProjects = projects.filter((p) => {
         if (p.status === 'delayed') return true;
-        if (p.status !== 'completed' && p.status !== 'pending_approval') {
+        // Check for overdue active/in-progress projects
+        if (p.status === 'active' || p.status === 'in-progress' || p.status === 'planning') {
           const endDate = new Date(p.end_date);
           endDate.setHours(0, 0, 0, 0);
           return endDate < today;

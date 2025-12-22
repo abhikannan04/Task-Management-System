@@ -131,9 +131,16 @@ const AssignEmployees = () => {
     return filteredManagers;
   };
 
-  // Filter employees - NO department filter, only search
+  // Filter employees - Now includes department filter
   const getFilteredEmployees = () => {
     let filteredEmployees = employeesList;
+
+    // Filter by department if selected
+    if (selectedDepartment) {
+      filteredEmployees = filteredEmployees.filter(emp =>
+        emp.department && emp.department.trim() === selectedDepartment.trim()
+      );
+    }
 
     // Filter by search term if provided
     if (employeeSearchTerm) {
@@ -148,7 +155,9 @@ const AssignEmployees = () => {
   const loadAssignments = async () => {
     try {
       const assignmentsResponse = await apiService.getAssignments(id);
-      setAssignments(assignmentsResponse.data);
+      // Deduplicate assignments by employee_id to prevent duplicates in the list
+      const uniqueAssignments = Array.from(new Map(assignmentsResponse.data.map(item => [item.employee_id, item])).values());
+      setAssignments(uniqueAssignments);
     } catch (error) {
       toast.error('Failed to load assignments');
       console.error('Error loading assignments:', error);

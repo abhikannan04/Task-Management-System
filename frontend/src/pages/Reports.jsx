@@ -325,7 +325,7 @@ const Reports = () => {
   const topCsvData = csvData.slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"

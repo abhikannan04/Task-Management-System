@@ -180,17 +180,28 @@ const ProjectDetails = () => {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
-              <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                {project.status === 'active' ? 'Active' :
-                  project.status === 'pending_approval' ? 'Pending Approval' :
-                    project.status === 'delayed' ? 'Delayed' :
-                      project.status === 'in-progress' ? 'In Progress' :
-                        project.status === 'completed' ? 'Completed' :
-                          project.status === 'archived' ? 'Archived' :
-                            project.status === 'planning' ? 'Planning' :
-                              project.status === 'on-hold' ? 'On Hold' :
-                                project.status}
-              </span>
+              {(() => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const endDate = new Date(project.end_date);
+                endDate.setHours(0, 0, 0, 0);
+                const isOverdue = endDate < today && ['active', 'in-progress', 'planning'].includes(project.status);
+
+                return (
+                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${isOverdue ? 'bg-red-100 text-red-800' : getStatusColor(project.status)}`}>
+                    {isOverdue ? 'Delayed' :
+                      (project.status === 'active' ? 'Active' :
+                        project.status === 'pending_approval' ? 'Pending Approval' :
+                          project.status === 'delayed' ? 'Delayed' :
+                            project.status === 'in-progress' ? 'In Progress' :
+                              project.status === 'completed' ? 'Completed' :
+                                project.status === 'archived' ? 'Archived' :
+                                  project.status === 'planning' ? 'Planning' :
+                                    project.status === 'on-hold' ? 'On Hold' :
+                                      project.status)}
+                  </span>
+                );
+              })()}
             </div>
             <p className="text-gray-500 dark:text-gray-400 max-w-2xl">{project.description}</p>
           </div>

@@ -224,7 +224,7 @@ const CreateProject = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -234,7 +234,7 @@ const CreateProject = () => {
       </button>
 
 
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-4 transition-colors duration-200">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Department and OSTA No Section (Row 1) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -451,7 +451,7 @@ const CreateProject = () => {
                 </div>
               )}
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Upload PRD file (PDF, Word, Excel, Text, or Image files up to 10MB)
+                Upload TRD file (PDF, Word, Excel, Text, or Image files up to 10MB)
               </p>
             </div>
           </div>

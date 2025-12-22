@@ -8,7 +8,8 @@ import {
   XCircle,
   AlertTriangle,
   Calendar,
-  Clock
+  Clock,
+  MessageSquare
 } from 'lucide-react';
 
 const ActionPlans = () => {
@@ -260,34 +261,59 @@ const ActionPlans = () => {
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                           {actionPlan.status_text}
                         </p>
-                        <div className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                          <Clock className="h-4 w-4 mr-1" />
-                          <span>Submitted: {new Date(actionPlan.submitted_at).toLocaleString()}</span>
-                        </div>
-                        {actionPlan.reviewed_at && (
-                          <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            <span>Reviewed: {new Date(actionPlan.reviewed_at).toLocaleString()}</span>
-                          </div>
+                        {/* Remove submitted and reviewed dates for specific statuses */}
+                        {!['approved', 'rejected', 'pending', 'under_approval'].includes(status) && (
+                          <>
+                            <div className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                              <Clock className="h-4 w-4 mr-1" />
+                              <span>Submitted: {new Date(actionPlan.submitted_at).toLocaleString()}</span>
+                            </div>
+                            {actionPlan.reviewed_at && (
+                              <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                <span>Reviewed: {new Date(actionPlan.reviewed_at).toLocaleString()}</span>
+                              </div>
+                            )}
+                          </>
                         )}
                         {status === 'rejected' && actionPlan.review_comments && (
                           <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
-                            <p className="text-sm font-medium text-red-800 dark:text-red-200">Rejection Reason:</p>
-                            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-                              {actionPlan.review_comments}
+                            <p className="text-sm">
+                              <span className="font-medium text-red-800 dark:text-red-200">Rejection Reason: </span>
+                              <span className="text-red-700 dark:text-red-300">{actionPlan.review_comments}</span>
                             </p>
                           </div>
                         )}
                         {status !== 'rejected' && actionPlan.review_comments && (
                           <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Review Comments:</p>
-                            <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                              {actionPlan.review_comments}
+                            <p className="text-sm">
+                              <span className="font-medium text-blue-800 dark:text-blue-200">Review Comments: </span>
+                              <span className="text-blue-700 dark:text-blue-300">{actionPlan.review_comments}</span>
                             </p>
                           </div>
                         )}
                       </div>
-                      <div className="ml-4 flex-shrink-0">
+                      <div className="ml-4 flex flex-col items-end gap-2">
+                        {['approved', 'rejected', 'pending', 'under_approval'].includes(status) && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigate(`/projects/${actionPlan.project_id}/discussion`, {
+                                state: {
+                                  citedActionPlan: {
+                                    id: actionPlan.id,
+                                    text: actionPlan.status_text,
+                                    user_name: user?.name || 'Employee'
+                                  }
+                                }
+                              });
+                            }}
+                            className="text-primary-600 hover:text-primary-500 text-sm font-medium flex items-center"
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            Discussion
+                          </button>
+                        )}
                         <span className="text-primary-600 hover:text-primary-500 text-sm font-medium">
                           View Details
                         </span>

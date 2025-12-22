@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, FileText, User, Building, Plus } from 'lucide-react';
+import { Calendar, FileText, User, Building, Plus, ArrowLeft } from 'lucide-react';
 
 const CreateProject = () => {
   const { user } = useAuth();
@@ -225,6 +225,13 @@ const CreateProject = () => {
 
   return (
     <div className="space-y-6">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
+        <ArrowLeft className="h-5 w-5 mr-2" />
+        Back
+      </button>
 
 
       <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">

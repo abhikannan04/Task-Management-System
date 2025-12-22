@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import { toast } from 'react-toastify';
-import { Clock, Eye, Paperclip } from 'lucide-react';
+import { Clock, Eye, Paperclip, ArrowLeft } from 'lucide-react';
 import FileAttachment from '../components/FileAttachment';
 
 const ReviewStatus = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,6 +53,13 @@ const ReviewStatus = () => {
 
   return (
     <div className="space-y-6">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
+        <ArrowLeft className="h-5 w-5 mr-2" />
+        Back
+      </button>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Eye className="h-6 w-6 text-gray-600 dark:text-gray-400 mr-2" />
@@ -62,7 +71,7 @@ const ReviewStatus = () => {
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Status Reports</h2>
         </div>
-        
+
         {statuses.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <Clock className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
@@ -98,7 +107,7 @@ const ReviewStatus = () => {
                       <span className="mx-2">•</span>
                       <span>{status.progress_percentage}% progress</span>
                     </div>
-                    
+
                     {/* Attachments */}
                     {status.attachments && status.attachments.length > 0 && (
                       <div className="mt-3">

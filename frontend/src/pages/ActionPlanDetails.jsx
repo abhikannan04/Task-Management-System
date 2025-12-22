@@ -8,9 +8,7 @@ import {
     Calendar,
     CheckCircle,
     Clock,
-    MessageSquare,
     Plus,
-    Send,
     Edit2,
     Trash2,
     X,
@@ -26,12 +24,9 @@ const ActionPlanDetails = () => {
 
     const [actionPlan, setActionPlan] = useState(null);
     const [activities, setActivities] = useState([]);
-    const [discussions, setDiscussions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'activities');
 
     const [newActivity, setNewActivity] = useState('');
-    const [newMessage, setNewMessage] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     // Editing state
@@ -63,7 +58,7 @@ const ActionPlanDetails = () => {
             const response = await api.get(`/action-plans/${id}`);
             setActionPlan(response.data.actionPlan);
             setActivities(response.data.activities);
-            setDiscussions(response.data.discussions);
+            setActivities(response.data.activities);
         } catch (error) {
             console.error('Error fetching action plan details:', error);
             toast.error('Failed to load action plan details');
@@ -177,25 +172,7 @@ const ActionPlanDetails = () => {
         }
     };
 
-    const handleSendMessage = async (e) => {
-        e.preventDefault();
-        if (!newMessage.trim()) return;
 
-        try {
-            setSubmitting(true);
-            const response = await api.post(`/action-plans/${id}/discussions`, {
-                message: newMessage
-            });
-
-            setDiscussions([...discussions, response.data.discussion]);
-            setNewMessage('');
-        } catch (error) {
-            console.error('Error sending message:', error);
-            toast.error('Failed to send message');
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     if (loading) {
         return (
@@ -270,34 +247,11 @@ const ActionPlanDetails = () => {
 
                 {/* Tabs / Content */}
                 {!isRejected ? (
-                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden min-h-[500px] flex flex-col">
-                        <div className="border-b border-gray-200 dark:border-gray-700">
-                            <nav className="flex -mb-px">
-                                <button
-                                    onClick={() => setActiveTab('activities')}
-                                    className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm ${activeTab === 'activities'
-                                        ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                                        }`}
-                                >
-                                    Action Plan Instance
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('discussion')}
-                                    className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm ${activeTab === 'discussion'
-                                        ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                                        }`}
-                                >
-                                    Discussion
-                                </button>
-                            </nav>
-                        </div>
-
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden flex flex-col">
                         <div className="p-6 flex-1 flex flex-col">
-                            {activeTab === 'activities' ? (
-                                <div className="space-y-6">
-                                    {/* Add Activity Form */}
+                            <div className="space-y-6">
+                                {/* Add Activity Form */}
+                                {(user.role === 'manager' || user.role === 'admin' || actionPlan.employee_id === user.id) && (
                                     <form onSubmit={handleAddActivity} className="flex gap-4">
                                         <input
                                             type="text"
@@ -315,144 +269,88 @@ const ActionPlanDetails = () => {
                                             Add
                                         </button>
                                     </form>
+                                )}
 
-                                    {/* Activities List */}
-                                    <div className="space-y-0 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                                        {activities.map((activity, index) => (
-                                            <div key={activity.id} className={`p-4 flex gap-4 bg-white dark:bg-gray-800 ${index !== activities.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}>
-                                                <div className="flex-shrink-0">
-                                                    <div className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-medium shadow-sm bg-primary-600">
-                                                        {activity.user_name ? activity.user_name.charAt(0) : '?'}
-                                                    </div>
+                                {/* Activities List */}
+                                <div className="space-y-0 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                    {activities.map((activity, index) => (
+                                        <div key={activity.id} className={`p-4 flex gap-4 bg-white dark:bg-gray-800 ${index !== activities.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}>
+                                            <div className="flex-shrink-0">
+                                                <div className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-medium shadow-sm bg-primary-600">
+                                                    {activity.user_name ? activity.user_name.charAt(0) : '?'}
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {activity.user_name || 'Unknown User'}
-                                                        </h3>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                                                <Clock className="h-3 w-3 mr-1" />
-                                                                {new Date(activity.created_at).toLocaleString()}
-                                                            </span>
-                                                            {user && activity.created_by === user.id && (
-                                                                <div className="flex items-center gap-1 ml-2">
-                                                                    <button
-                                                                        onClick={() => startEditing(activity)}
-                                                                        className="p-1 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                                                                        title="Edit"
-                                                                    >
-                                                                        <Edit2 className="h-3 w-3" />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleDeleteActivity(activity.id)}
-                                                                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                                                                        title="Delete"
-                                                                    >
-                                                                        <Trash2 className="h-3 w-3" />
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {editingActivityId === activity.id ? (
-                                                        <div className="mt-2">
-                                                            <textarea
-                                                                value={editDescription}
-                                                                onChange={(e) => setEditDescription(e.target.value)}
-                                                                className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
-                                                                rows={3}
-                                                            />
-                                                            <div className="flex justify-end gap-2 mt-2">
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {activity.user_name || 'Unknown User'}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                                            <Clock className="h-3 w-3 mr-1" />
+                                                            {new Date(activity.created_at).toLocaleString()}
+                                                        </span>
+                                                        {user && activity.created_by === user.id && (
+                                                            <div className="flex items-center gap-1 ml-2">
                                                                 <button
-                                                                    onClick={cancelEditing}
-                                                                    className="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                                                                    onClick={() => startEditing(activity)}
+                                                                    className="p-1 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                                                    title="Edit"
                                                                 >
-                                                                    <X className="h-3 w-3 mr-1" />
-                                                                    Cancel
+                                                                    <Edit2 className="h-3 w-3" />
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleUpdateActivity(activity.id)}
-                                                                    className="inline-flex items-center px-2 py-1 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700"
+                                                                    onClick={() => handleDeleteActivity(activity.id)}
+                                                                    className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                                                                    title="Delete"
                                                                 >
-                                                                    <Save className="h-3 w-3 mr-1" />
-                                                                    Save
+                                                                    <Trash2 className="h-3 w-3" />
                                                                 </button>
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                                            {activity.description}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {activities.length === 0 && (
-                                            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                                                <p>No activities recorded yet.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col h-full">
-                                    {/* Discussion Messages */}
-                                    <div className="flex-1 space-y-4 mb-4 overflow-y-auto max-h-[500px]">
-                                        {discussions.map((msg) => (
-                                            <div key={msg.id} className={`flex gap-3 ${msg.user_id === user.id ? 'flex-row-reverse' : ''}`}>
-                                                <div className="flex-shrink-0">
-                                                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-medium shadow-sm
-                                                        ${msg.user_id === user.id ? 'bg-primary-600' : 'bg-gray-400 dark:bg-gray-600'}`}>
-                                                        {msg.user_name.charAt(0)}
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className={`flex flex-col max-w-[80%] ${msg.user_id === user.id ? 'items-end' : 'items-start'}`}>
-                                                    <div className="flex items-baseline gap-2 mb-1">
-                                                        <span className="text-xs font-medium text-gray-900 dark:text-white">{msg.user_name}</span>
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                    </div>
-                                                    <div className={`p-3 rounded-lg shadow-sm text-sm whitespace-pre-wrap
-                                                        ${msg.user_id === user.id
-                                                            ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-white rounded-tr-none border border-primary-100 dark:border-primary-800'
-                                                            : 'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-tl-none border border-gray-200 dark:border-gray-600'}`}>
-                                                        {msg.message}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {discussions.length === 0 && (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-8">
-                                                <MessageSquare className="h-12 w-12 mb-2 opacity-50" />
-                                                <p>No messages yet. Start the discussion!</p>
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* Message Input */}
-                                    <form onSubmit={handleSendMessage} className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <div className="flex gap-4">
-                                            <input
-                                                type="text"
-                                                value={newMessage}
-                                                onChange={(e) => setNewMessage(e.target.value)}
-                                                placeholder="Type your message..."
-                                                className="flex-1 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                                            />
-                                            <button
-                                                type="submit"
-                                                disabled={submitting || !newMessage.trim()}
-                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
-                                            >
-                                                <Send className="h-4 w-4" />
-                                            </button>
+                                                {editingActivityId === activity.id ? (
+                                                    <div className="mt-2">
+                                                        <textarea
+                                                            value={editDescription}
+                                                            onChange={(e) => setEditDescription(e.target.value)}
+                                                            className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                                            rows={3}
+                                                        />
+                                                        <div className="flex justify-end gap-2 mt-2">
+                                                            <button
+                                                                onClick={cancelEditing}
+                                                                className="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                                                            >
+                                                                <X className="h-3 w-3 mr-1" />
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateActivity(activity.id)}
+                                                                className="inline-flex items-center px-2 py-1 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700"
+                                                            >
+                                                                <Save className="h-3 w-3 mr-1" />
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                        {activity.description}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </form>
+                                    ))}
+                                    {activities.length === 0 && (
+                                        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                                            <p>No activities recorded yet.</p>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 ) : (

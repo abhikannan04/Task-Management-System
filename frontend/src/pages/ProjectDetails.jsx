@@ -19,7 +19,7 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [activeActionPlanView, setActiveActionPlanView] = useState(user?.role === 'employee' ? 'my' : 'team');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'action_plans', 'discussion'
+  const [activeTab, setActiveTab] = useState('action_plans'); // 'overview', 'action_plans', 'discussion'
 
   const loadProject = async () => {
     try {
@@ -322,15 +322,6 @@ const ProjectDetails = () => {
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-4" aria-label="Tabs">
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`${activeTab === 'overview'
-              ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200`}
-          >
-            Overview & Team
-          </button>
-          <button
             onClick={() => setActiveTab('action_plans')}
             className={`${activeTab === 'action_plans'
               ? 'border-primary-500 text-primary-600 dark:text-primary-400'
@@ -338,6 +329,15 @@ const ProjectDetails = () => {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200`}
           >
             Action Plans & Activity
+          </button>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`${activeTab === 'overview'
+              ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200`}
+          >
+            Team Overview
           </button>
 
         </nav>
@@ -495,7 +495,7 @@ const ProjectDetails = () => {
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                     } ${user.role === 'employee' ? 'w-1/2' : 'w-full'} py-4 px-1 text-center border-b-2 font-medium text-sm transition-colors duration-200`}
                 >
-                  Team Activity
+                  Team Action Plans
                 </button>
               </nav>
             </div>
@@ -506,27 +506,33 @@ const ProjectDetails = () => {
                 employeeStatuses.length > 0 ? (
                   <div className="space-y-3">
                     {employeeStatuses.map((status) => (
-                      <div key={status.id} className="border-b border-gray-200 dark:border-gray-700 last:border-0 py-2 last:pb-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div key={status.id} className="border-b border-gray-200 dark:border-gray-700 last:border-0 py-2 last:pb-0 flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                             {format(new Date(status.submitted_at), 'MMM dd, yyyy HH:mm')}
                           </div>
-                        </div>
-                        <div className="mb-1">
                           <p className="text-gray-900 dark:text-white whitespace-pre-wrap font-semibold text-sm">
                             {status.status_text}
                           </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col gap-2 shrink-0">
                           <Link
                             to={`/action-plans/${status.id}?tab=activities`}
-                            className="inline-flex items-center px-3 py-1.5 border border-primary-600 text-xs font-medium rounded text-primary-600 bg-white hover:bg-primary-50 dark:bg-gray-800 dark:text-primary-400 dark:border-primary-400 dark:hover:bg-gray-700 transition-colors duration-200"
+                            className="inline-flex justify-center items-center px-2 py-1.5 w-28 border border-primary-600 text-xs font-medium rounded text-primary-600 bg-white hover:bg-primary-50 dark:bg-gray-800 dark:text-primary-400 dark:border-primary-400 dark:hover:bg-gray-700 transition-colors duration-200"
                           >
-                            Action Plan Instance
+                            Add Instance
                           </Link>
                           <Link
-                            to={`/action-plans/${status.id}?tab=discussion`}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                            to={`/projects/${id}/discussion`}
+                            state={{
+                              citedActionPlan: {
+                                id: status.id,
+                                text: status.status_text,
+                                user_name: 'You',
+                                submitted_at: status.submitted_at
+                              }
+                            }}
+                            className="inline-flex justify-center items-center px-2 py-1.5 w-28 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
                           >
                             Discussion
                           </Link>
@@ -561,32 +567,54 @@ const ProjectDetails = () => {
                           </div>
 
                           {/* Content */}
-                          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-sm">
-                            <div className="flex justify-between items-start mb-1">
-                              <div>
-                                <span className="text-sm font-medium text-gray-900 dark:text-white mr-2">
-                                  {plan.employee_name}
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  updated status {formatDistanceToNow(new Date(plan.submitted_at), { addSuffix: true })}
-                                </span>
+                          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-sm flex flex-row gap-2">
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-1">
+                                <div>
+                                  <span className="text-sm font-medium text-gray-900 dark:text-white mr-2">
+                                    {plan.employee_name}
+                                  </span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    updated status {formatDistanceToNow(new Date(plan.submitted_at), { addSuffix: true })}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="mb-1">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white whitespace-pre-wrap">
+                                  {plan.status_text}
+                                </p>
                               </div>
                             </div>
-                            <div className="mb-1">
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white whitespace-pre-wrap">
-                                {plan.status_text}
-                              </p>
-                            </div>
-                            <div className="flex gap-3 mt-3">
+                            <div className="flex flex-col gap-2 shrink-0 justify-start">
+                              {/* Logic for Add/View Instance Button */}
+                              {/* Manager/Admin or Creator -> Add Instance */}
+                              {(user.role === 'manager' || user.role === 'admin' || plan.employee_id === user.id) ? (
+                                <Link
+                                  to={`/action-plans/${plan.id}?tab=activities`}
+                                  className="inline-flex justify-center items-center px-2 py-1.5 w-28 border border-primary-600 text-xs font-medium rounded text-primary-600 bg-white hover:bg-primary-50 dark:bg-gray-800 dark:text-primary-400 dark:border-primary-400 dark:hover:bg-gray-700 transition-colors duration-200"
+                                >
+                                  Add Instance
+                                </Link>
+                              ) : (
+                                /* Non-creator Employee -> View Instance */
+                                <Link
+                                  to={`/action-plans/${plan.id}?tab=activities`}
+                                  className="inline-flex justify-center items-center px-2 py-1.5 w-28 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                                >
+                                  View Instance
+                                </Link>
+                              )}
                               <Link
-                                to={`/action-plans/${plan.id}?tab=activities`}
-                                className="inline-flex items-center px-3 py-1.5 border border-primary-600 text-xs font-medium rounded text-primary-600 bg-white hover:bg-primary-50 dark:bg-gray-800 dark:text-primary-400 dark:border-primary-400 dark:hover:bg-gray-700 transition-colors duration-200"
-                              >
-                                Action Plan Instance
-                              </Link>
-                              <Link
-                                to={`/action-plans/${plan.id}?tab=discussion`}
-                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                                to={`/projects/${id}/discussion`}
+                                state={{
+                                  citedActionPlan: {
+                                    id: plan.id,
+                                    text: plan.status_text,
+                                    user_name: plan.employee_name,
+                                    submitted_at: plan.submitted_at
+                                  }
+                                }}
+                                className="inline-flex justify-center items-center px-2 py-1.5 w-28 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
                               >
                                 Discussion
                               </Link>

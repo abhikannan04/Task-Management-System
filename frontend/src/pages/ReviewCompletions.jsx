@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import api from '../services/api';
 import { toast } from 'react-toastify';
-import { CheckCircle, XCircle, MessageSquare, AlertTriangle, Clock, User, X } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, AlertTriangle, Clock, User, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Create a custom event to notify sidebar of count changes
@@ -273,7 +273,14 @@ const ReviewCompletions = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
+        <ArrowLeft className="h-5 w-5 mr-2" />
+        Back
+      </button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects && Array.isArray(projects) && projects.length > 0 ? (

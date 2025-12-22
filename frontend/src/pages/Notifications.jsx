@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import { toast } from 'react-toastify';
-import { Clock, Calendar, XCircle, Filter } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Clock, Calendar, XCircle, Filter, ArrowLeft } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
   const { user } = useAuth();
-  const location = useLocation();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState({
     recentStatuses: [],
   });
@@ -116,6 +116,13 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-1 px-2 sm:px-4 lg:px-6 transition-colors duration-200">
       <div className="w-full">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back
+        </button>
         {/* Combined heading and filters */}
         <div className="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-200">

@@ -1,21 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../utils/mockData';
 import api from '../services/api';
 import { toast } from 'react-toastify';
-import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
+import { MessageCircle, Send, ArrowLeft, X, Quote } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ProjectDiscussion = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [citation, setCitation] = useState(null);
     const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef(null);
     const [project, setProject] = useState(null);
+
+    useEffect(() => {
+        if (location.state?.citedActionPlan) {
+            setCitation(location.state.citedActionPlan);
+            // Clear state so it doesn't persist on refresh/back unnecessarily (optional, but good practice)
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,9 +73,26 @@ const ProjectDiscussion = () => {
         e.preventDefault();
         if (!newComment.trim()) return;
 
+        let finalComment = newComment;
+        // If a citation exists, we save it as a structured JSON string.
+        // This allows us to render it beautifully as a "Replying to" block later.
+        if (citation) {
+            const payload = {
+                type: 'reply',
+                citation: {
+                    user_name: citation.user_name,
+                    text: citation.text,
+                    id: citation.id
+                },
+                content: newComment
+            };
+            finalComment = JSON.stringify(payload);
+        }
+
         try {
-            await apiService.addComment(id, { content: newComment });
+            await apiService.addComment(id, { content: finalComment });
             setNewComment('');
+            setCitation(null); // Clear citation after sending
             // Refresh comments
             const response = await apiService.getComments(id);
             setComments(response.data);
@@ -133,7 +160,32 @@ const ProjectDiscussion = () => {
                     ${comment.user_id === user.id
                                             ? 'bg-primary-600 text-white rounded-tr-none'
                                             : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-none border border-gray-200 dark:border-gray-700'}`}>
-                                        {comment.content}
+                                        {/* Render content helper */}
+                                        {(() => {
+                                            try {
+                                                // Try to parse as JSON first
+                                                const parsed = JSON.parse(comment.content);
+                                                if (parsed && parsed.type === 'reply' && parsed.citation) {
+                                                    return (
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className={`rounded-md p-2 text-xs border-l-4 mb-1
+                                                                ${comment.user_id === user.id
+                                                                    ? 'bg-primary-700 border-primary-300 text-primary-100'
+                                                                    : 'bg-gray-100 dark:bg-gray-700 border-primary-500 text-gray-600 dark:text-gray-300'
+                                                                }`}>
+                                                                <p className="font-bold opacity-90 mb-0.5">{parsed.citation.user_name}</p>
+                                                                <p className="line-clamp-2 italic opacity-80">{parsed.citation.text}</p>
+                                                            </div>
+                                                            <span>{parsed.content}</span>
+                                                        </div>
+                                                    );
+                                                }
+                                                return comment.content;
+                                            } catch (e) {
+                                                // If not JSON, render as plain text (backward compatibility)
+                                                return comment.content;
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +206,27 @@ const ProjectDiscussion = () => {
             {/* Message Input Bottom Bar */}
             <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 sticky bottom-0 z-10 shadow-lg">
                 <div className="max-w-4xl mx-auto">
+                    {citation && (
+                        <div className="mb-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-primary-500 flex justify-between items-start animate-fade-in-up">
+                            <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-300">
+                                <Quote className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary-500" />
+                                <div>
+                                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                                        Replying to Action Plan by {citation.user_name}
+                                    </p>
+                                    <p className="line-clamp-2 italic opacity-80 mt-1">
+                                        "{citation.text}"
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setCitation(null)}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                    )}
                     <form onSubmit={handleAddComment} className="flex gap-4 items-center">
                         <input
                             type="text"

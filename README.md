@@ -1,6 +1,6 @@
-# Project Status Management (PSM) System
+# Task Status Management (TSM) System
 
-A comprehensive project management system with role-based access control, daily status reporting, and approval workflows.
+A comprehensive Task  management system with role-based access control, daily status reporting, and approval workflows.
 
 ## Features
 
@@ -85,71 +85,6 @@ A comprehensive project management system with role-based access control, daily 
    ```bash
    npm run dev
    ```
-
-## Default Credentials
-
-- **Admin**: admin@psm.com / admin123
-- **Manager**: manager1@psm.com / admin123
-- **Employee**: employee1@psm.com / admin123
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - Register new user (Admin only)
-- `POST /api/auth/forgot-password` - Password reset request
-- `GET /api/auth/profile` - Get user profile
-
-### Projects
-- `POST /api/projects` - Create project (Admin/Manager)
-- `GET /api/projects` - Get all projects
-- `GET /api/projects/:id` - Get project by ID
-- `PUT /api/projects/:id` - Update project (Admin/Manager)
-- `DELETE /api/projects/:id` - Delete project (Admin/Manager)
-
-### Assignments
-- `POST /api/assignments` - Assign employee to project (Admin/Manager)
-- `GET /api/assignments/project/:project_id` - Get project assignments
-- `GET /api/assignments/employee/:employee_id` - Get employee projects
-- `DELETE /api/assignments/:id` - Unassign employee (Admin/Manager)
-
-### Status
-- `POST /api/status` - Submit daily status (Employee)
-- `GET /api/status/pending` - Get pending statuses (Manager/Admin)
-- `PUT /api/status/:id/review` - Review status (Manager/Admin)
-- `GET /api/status/employee/:employee_id/:project_id` - Get employee status history
-
-### Reports
-- `POST /api/reports/generate` - Generate report
-- `GET /api/reports/logs` - Get report generation logs
-
-## Project Structure
-
-```
-.
-├── backend/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── migrations/
-│   ├── models/
-│   ├── routes/
-│   ├── seeds/
-│   ├── utils/
-│   ├── db.js
-│   ├── server.js
-│   └── .env
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   ├── contexts/
-    │   ├── pages/
-    │   ├── services/
-    │   ├── utils/
-    │   ├── App.jsx
-    │   └── main.jsx
-    └── ...
-```
-
 ## Development
 
 ### Backend
